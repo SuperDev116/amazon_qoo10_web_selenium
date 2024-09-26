@@ -28,7 +28,8 @@
                 <div class="card card-info card-outline">
                     @if (session('status'))
                         <div class="alert alert-success alert-dismissible show fade" role="alert">
-                            <span class="alert-text text-white"> {{ session('status') }} </span>
+                            <span class="alert-text text-white"> 出品情報が正常に保存されました。<a href="{{ route('download.zip') }}" style="color: rgb(0, 0, 0);">【ツールダウンロード】</a>タブからツールをダウンロードして商品情報取得してください。 </span>
+                            {{-- <span class="alert-text text-white"> {{ session('status') }} </span> --}}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -41,16 +42,12 @@
                                 <div class="row m-4">
                                     <h4>AMAZON情報</h4>
                                     <div class="mb-3">
-                                        <label for="amazon_accesskey" class="form-label">アクセスキー<span class="text-danger small"> (必須)</span></label>
-                                        <input type="password" class="form-control" id="amazon_accesskey" name="amazon_accesskey" value="{{ isset($setting) ? $setting->amazon_accesskey : '' }}" required>
+                                        <label for="amazon_email" class="form-label">メール<span class="text-danger small"> (必須)</span></label>
+                                        <input type="password" class="form-control" id="amazon_email" name="amazon_email" value="{{ isset($setting) ? $setting->amazon_email : '' }}" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="amazon_secretkey" class="form-label">シークレットキー<span class="text-danger small"> (必須)</span></label>
-                                        <input type="password" class="form-control" id="amazon_secretkey" name="amazon_secretkey" value="{{ isset($setting) ? $setting->amazon_secretkey : '' }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="amazon_partnertag" class="form-label">パートナータグ<span class="text-danger small"> (必須)</span></label>
-                                        <input type="password" class="form-control" id="amazon_partnertag" name="amazon_partnertag" value="{{ isset($setting) ? $setting->amazon_partnertag : '' }}" required>
+                                        <label for="amazon_password" class="form-label">パスワード<span class="text-danger small"> (必須)</span></label>
+                                        <input type="password" class="form-control" id="amazon_password" name="amazon_password" value="{{ isset($setting) ? $setting->amazon_password : '' }}" required>
                                     </div>
                                 </div>
     
@@ -142,11 +139,11 @@
                                 </div>
                             </div>
                             
-                            <div class="col">
+                            {{-- <div class="col">
                                 <div class="row m-4">
                                     <button type="button" id="exhi_btn" class="btn btn-primary" @if (!session('status')) disabled @endif>Amazon商品データ取得</button>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </form>
                 </div>
@@ -259,8 +256,8 @@
         {
             const fields =
             [
-                { id: '#amazon_accesskey', message: 'アマゾンアクセスキーは必須です。' },
-                { id: '#amazon_secretkey', message: 'アマゾンシークレットキーは必須です。' },
+                { id: '#amazon_email', message: 'アマゾンアクセスキーは必須です。' },
+                { id: '#amazon_password', message: 'アマゾンシークレットキーは必須です。' },
                 { id: '#amazon_partnertag', message: 'アマゾンパートナータグは必須です。' },
                 { id: '#qsm_email', message: 'QSMメールは必須です。' },
                 { id: '#qsm_password', message: 'QSMパスワードは必須です。' },

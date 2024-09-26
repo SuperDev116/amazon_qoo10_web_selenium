@@ -28,4 +28,10 @@ class AmazonController extends Controller
 				->make(true);
 		}
     }
+
+    public function get_products(Request $request)
+    {
+        $products = AmazonProduct::where('user_id', $request->user_id)->get();
+        return $products;
+    }
 }

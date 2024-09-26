@@ -16,7 +16,7 @@ class CreateAmazonProductsTable extends Migration
         Schema::create('amazon_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('asin')->unique();
+            $table->string('asin')->nullable();
             $table->boolean('is_prime')->nullable()->default(false);
             $table->text('title')->nullable();
             $table->string('url')->nullable();

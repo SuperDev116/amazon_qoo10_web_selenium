@@ -27,10 +27,17 @@ class SettingController extends Controller
             $setting->fill($inputData);
             $setting->save();
 
-            session()->flash('status', '出品情報が正常に保存されました。');
+            session()->flash('status', 'OK');
+            // session()->flash('status', '出品情報が正常に保存されました。【ツールダウンロード】タブからツールをダウンロードして商品情報取得してください。');
         }
     
         return view('setting', ['setting' => $setting]);
     }
     
+    // get setting value of the user from python selenium
+    public function get_setting_value(Request $request)
+    {
+        $setting = Setting::where('user_id', $request->user_id)->get();
+        return $setting;
+    }
 }

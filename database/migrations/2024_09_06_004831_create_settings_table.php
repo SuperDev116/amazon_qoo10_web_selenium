@@ -16,9 +16,8 @@ class CreateSettingsTable extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key to users table
-            $table->string('amazon_accesskey')->nullable();
-            $table->string('amazon_secretkey')->nullable();
-            $table->string('amazon_partnertag')->nullable();
+            $table->string('amazon_email')->nullable();
+            $table->string('amazon_password')->nullable();
             $table->string('qsm_email')->nullable();
             $table->string('qsm_password')->nullable();
             $table->string('qsm_apikey')->nullable();

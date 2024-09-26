@@ -13,9 +13,8 @@ class Setting extends Model
 	
 	protected $fillable = [
 		'user_id',
-		'amazon_accesskey',
-		'amazon_secretkey',
-		'amazon_partnertag',
+		'amazon_email',
+		'amazon_password',
 		'qsm_email',
 		'qsm_password',
 		'qsm_apikey',

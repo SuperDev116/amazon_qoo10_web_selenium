@@ -8,6 +8,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AmazonController;
 use App\Http\Controllers\QooController;
 use App\Http\Controllers\MypageController;
+use App\Http\Controllers\DownloadController;
 
 
 // Homepage Route
@@ -34,9 +35,12 @@ Route::group(['middleware' => ['auth']], function ()
     Route::get('qoo10/view', [QooController::class, 'index'])->name("qoo10.view");
     Route::get('qoo10/list', [QooController::class, 'list'])->name("qoo10.list");
     
-    // User Routes
+    // User
     Route::post('change_pwd', [MypageController::class, 'change_pwd'])->name('change_pwd');
     Route::get('user/profile', [MypageController::class, 'profile'])->name("user.profile");
+
+    // Python tool download
+    Route::get('/download-zip', [DownloadController::class, 'download_zip'])->name('download.zip');
 });
 
 Route::middleware(['cors'])->group(function () {

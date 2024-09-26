@@ -1,12 +1,7 @@
 <?php
 
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\RecruitmentController;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\MatterController;
-use App\Http\Controllers\API\ApplicationController;
-use App\Http\Controllers\API\ChatController;
-use App\Http\Controllers\API\NoticeController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\AmazonController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +18,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function() {
-    Route::post('login', [AuthController::class, 'signIn']);
-    Route::post('register', [AuthController::class, 'signUp']);
+    Route::post('get_setting_value', [SettingController::class, 'get_setting_value']);
+    Route::post('get_products', [AmazonController::class, 'get_products']);
 });
