@@ -5,7 +5,7 @@ module.exports = {
 	DB: "amazon_qoo10",
 	// USER: "xs998400_webq",
 	// PASSWORD: "YamaTeru1327",
-	// DB: "xs998400_webqoo10",
+	// DB: "xs998400_amaq10selenium",
 	dialect: "mysql",
 	pool: {
 		max: 150,

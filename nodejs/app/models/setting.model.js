@@ -9,15 +9,11 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false, // Ensure user_id is not null
     },
-    amazon_accesskey: {
+    amazon_email: {
       type: Sequelize.STRING,
       allowNull: true, // Allow null if not provided
     },
-    amazon_secretkey: {
-      type: Sequelize.STRING,
-      allowNull: true, // Allow null if not provided
-    },
-    amazon_partnertag: {
+    amazon_password: {
       type: Sequelize.STRING,
       allowNull: true, // Allow null if not provided
     },
