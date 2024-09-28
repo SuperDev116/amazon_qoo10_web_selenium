@@ -20,4 +20,5 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function() {
     Route::post('get_setting_value', [SettingController::class, 'get_setting_value']);
     Route::post('get_products', [AmazonController::class, 'get_products']);
+    Route::post('save_products', [AmazonController::class, 'save_products']);
 });

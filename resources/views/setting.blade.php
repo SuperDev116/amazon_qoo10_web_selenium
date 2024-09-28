@@ -28,7 +28,7 @@
                 <div class="card card-info card-outline">
                     @if (session('status'))
                         <div class="alert alert-success alert-dismissible show fade" role="alert">
-                            <span class="alert-text text-white"> 出品情報が正常に保存されました。<a href="{{ route('download.zip') }}" style="color: rgb(0, 0, 0);">【ツールダウンロード】</a>タブからツールをダウンロードして商品情報取得してください。 </span>
+                            <span class="alert-text text-white"> 出品情報が正常に保存されました。最新ツールをダウンロードしなかった場合は<a href="{{ route('download.zip') }}" style="color: rgb(0, 0, 0);">このリンク</a>からダウンロードしてください。 </span>
                             {{-- <span class="alert-text text-white"> {{ session('status') }} </span> --}}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -43,7 +43,7 @@
                                     <h4>AMAZON情報</h4>
                                     <div class="mb-3">
                                         <label for="amazon_email" class="form-label">メール<span class="text-danger small"> (必須)</span></label>
-                                        <input type="password" class="form-control" id="amazon_email" name="amazon_email" value="{{ isset($setting) ? $setting->amazon_email : '' }}" required>
+                                        <input type="text" class="form-control" id="amazon_email" name="amazon_email" value="{{ isset($setting) ? $setting->amazon_email : '' }}" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="amazon_password" class="form-label">パスワード<span class="text-danger small"> (必須)</span></label>

@@ -30,6 +30,8 @@ Route::group(['middleware' => ['auth']], function ()
     // Amazon products
     Route::get('amazon/view', [AmazonController::class, 'index'])->name('amazon.view');
     Route::get('amazon/list', [AmazonController::class, 'list'])->name('amazon.list');
+    Route::post('amazon/destroy', [AmazonController::class, 'destroy'])->name('amazon.destroy');
+
 
     // Qoo10 products
     Route::get('qoo10/view', [QooController::class, 'index'])->name("qoo10.view");

@@ -16,7 +16,7 @@ class SettingController extends Controller
         } 
         else if ($request->isMethod('post')) 
         {
-            $inputData = $request->all();
+            $input_data = $request->all();
             $setting = Setting::where('user_id', Auth::id())->first();
             
             if (!$setting) {
@@ -24,7 +24,7 @@ class SettingController extends Controller
                 $setting->user_id = Auth::id();
             }
 
-            $setting->fill($inputData);
+            $setting->fill($input_data);
             $setting->save();
 
             session()->flash('status', 'OK');

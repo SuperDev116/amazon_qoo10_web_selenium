@@ -21,10 +21,33 @@ print(f"USER_ID _____ _____ _____ {USER_ID}")
 
 
 def get_setting_value():
-    # setting_api_url = f'https://amazonqoo10main.com/api/v1/get_setting_value'
-    setting_api_url = f'http://localhost:8000/api/v1/get_setting_value'
+    try:
+        setting_api_url = f'https://amazonqoo10main.com/api/v1/get_setting_value'
+        # setting_api_url = f'http://localhost:8000/api/v1/get_setting_value'
+        payload = {
+            'user_id': USER_ID
+        }
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        response = requests.post(setting_api_url, headers=headers, data=payload)
+        
+        return json.loads(response.text)[0]
+    except:
+        messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
+        
+SETTING_VALUE = get_setting_value()
+    
+print(f"SETTING_VALUE _____ _____ _____ {SETTING_VALUE}")
+
+
+def save_product(product):
+    setting_api_url = f'https://amazonqoo10main.com/api/v1/save_products'
+    # setting_api_url = f'http://localhost:8000/api/v1/save_products'
     payload = {
-        'user_id': USER_ID
+        'user_id': USER_ID,
+        'product': product,
     }
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -32,69 +55,13 @@ def get_setting_value():
     
     response = requests.post(setting_api_url, headers=headers, data=payload)
     return json.loads(response.text)[0]
-SETTING_VALUE = get_setting_value()
-print(f"SETTING_VALUE _____ _____ _____ {SETTING_VALUE}")
 
 
-def create_connection():
-    """ Create a database connection to the MySQL database """
-    connection = None
-    try:
-        connection = mysql.connector.connect(
-            host='localhost',
-            user='root',  # Your MySQL username
-            password='',  # Your MySQL password
-            database='amazon_qoo10_selenium'
-        )
-        print("Connection to MySQL DB successful!")
-    except Error as e:
-        print(f"The error '{e}' occurred")
-    return connection
-CONNECTION = create_connection()
-
-
-def save_product(connection, product):
-    """ Save a product to the database """
-    cursor = connection.cursor()
-    query = "INSERT INTO `amazon_products` (`user_id`, `asin`, `is_prime`, `title`, `url`, `shipping`, `quantity`, `img_url_main`, `img_url_thumb`, `r_price`, `price`, `category`, `description`, `color`, `size`, `weight`, `material`, `origin`, `exhibit`, `reason`, `created_at`, `updated_at`, `deleted_at`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    
-    current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    values = (
-        product['user_id'],
-        product['asin'],
-        product['is_prime'],
-        product['title'],
-        product['url'],
-        product['shipping'],
-        product['quantity'],
-        product['img_url_main'],
-        product['img_url_thumb'],
-        product['r_price'],
-        product['price'],
-        product['category'],
-        product['description'],
-        product['color'],
-        product['size'],
-        product['weight'],
-        product['material'],
-        product['origin'],
-        product['exhibit'],
-        product['reason'],
-        current_timestamp,
-        current_timestamp,
-        None
-    )
-    
-    try:
-        cursor.execute(query, values)
-        connection.commit()
-        print(f"Product '{product['asin']}' saved.")
-    except Error as e:
-        print(f"The error '{e}' occurred")
-        
-        
 def scraping():
+    if SETTING_VALUE == None:
+        messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
+        return
+    
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get(BASE_URL)
@@ -110,61 +77,42 @@ def scraping():
     
     signin_button = driver.find_element(By.ID, 'signInSubmit')
     signin_button.click()
-    time.sleep(30)
+    time.sleep(60)
     
     exhi_asins = SETTING_VALUE['exhi_asins'].split('\r\n')
-    ng_asins = SETTING_VALUE['ng_asins'].split('\r\n')
-    ng_words = SETTING_VALUE['\r\n']
+    if SETTING_VALUE['ng_asins']:
+        ng_asins = SETTING_VALUE['ng_asins'].split('\r\n')
+        
+    if SETTING_VALUE['ng_words']:
+        ng_words = SETTING_VALUE['ng_words'].split('\r\n')
     
     for asin in exhi_asins:
-        if asin in ng_asins:
+        if ng_asins and asin in ng_asins:
             continue
         # try:
         driver.get(PRODUCT_URL + asin)
         time.sleep(3)
         
-        product_info = {}
-        
-        product_info['user_id'] = USER_ID
-        product_info['asin'] = asin
-        
+        # -------------------------
+        # asin validation
+        # -------------------------
         try:
             driver.find_element(By.XPATH, "//b[contains(text(), '何かお探しですか？')]")
+            print(f"{asin} _____ _____ _____ This is a valid asin!")
         except NoSuchElementException:
-            print(f"This is invalid asin _____ _____ _____ {asin}")
+            print(f"{asin} _____ _____ _____ This is an invalid asin!")
             continue
         
+        # -------------------------
+        # prime eligible
+        # -------------------------
         try:
             prime_elmnt = driver.find_element(By.XPATH, "//div[@id='shippingMessageInsideBuyBox_feature_div']")
             is_prime = prime_elmnt.find_element(By.CSS_SELECTOR, ".a-icon.a-icon-prime")
-            print(f"This product is _____ _____ _____ {is_prime}")
+            print(f"{asin} _____ _____ _____ This product is prime eligible product.")
         except NoSuchElementException:
-            try:
-                prime_elmnt = driver.find_element(By.XPATH, "//div[@id='shippingMessageInsideBuyBox_feature_div']")
-                is_prime = prime_elmnt.find_element(By.CSS_SELECTOR, ".a-icon.a-icon-prime.tabs")
-                print(f"This product is _____ _____ _____ {is_prime}")
-            except NoSuchElementException:
-                print(f"This product is not prime eligible product.")
-                continue
-            
-        product_info['is_prime'] = is_prime
-        
-        # -------------------------
-        # url
-        # -------------------------
-        product_info['url'] = PRODUCT_URL + asin
-        print(f"url _____ _____ _____ {product_info['url']}")
-        
-        # -------------------------
-        # stock information
-        # -------------------------
-        try:
-            stock_elmnt = driver.find_element(By.ID, "outOfStock")
-            out_of_stock_span = stock_elmnt.find_element(By.XPATH, "//span[contains(text(),'現在在庫切れです。')]")
-            print(f"This product is out of stock.")
+            print(f"{asin} _____ _____ _____ This product is not prime eligible product.")
             continue
-        except NoSuchElementException:
-            print(f"This product is in stock.")
         
         # -------------------------
         # free shipping information
@@ -172,9 +120,30 @@ def scraping():
         try:
             shipping_elmnt = driver.find_element(By.ID, "mir-layout-DELIVERY_BLOCK")
             free_shipping_span = shipping_elmnt.find_elements(By.XPATH, "//span[contains(text(),'無料配送')]")
+            print(f"{asin} _____ _____ _____ This product is eligible for free shipping.")
         except NoSuchElementException:
-            print(f"This product is not eligible for free shipping.")
+            print(f"{asin} _____ _____ _____ This product is not eligible for free shipping.")
             continue
+        
+        # -------------------------
+        # stock information
+        # -------------------------
+        try:
+            stock_elmnt = driver.find_element(By.ID, "outOfStock")
+            out_of_stock_span = stock_elmnt.find_element(By.XPATH, "//span[contains(text(),'現在在庫切れです。')]")
+            print(f"{asin} _____ _____ _____ This product is out of stock.")
+            continue
+        except NoSuchElementException:
+            print(f"{asin} _____ _____ _____ This product is in stock.")
+        
+        product_info = {}
+        
+        product_info['user_id'] = USER_ID
+        product_info['asin'] = asin
+        product_info['is_prime'] = 1
+        product_info['url'] = PRODUCT_URL + asin
+        
+        print(f"url _____ _____ _____ {product_info['url']}")
         
         # -------------------------
         # quantity
@@ -191,13 +160,13 @@ def scraping():
         # title
         # -------------------------
         title_text = driver.find_element(By.ID, 'productTitle').text
+        product_info['title'] = title_text
         
-        for ng_word in ng_words:
-            if ng_word in title_text:
-                product_info['title'] = title_text.replace(ng_word, "")
-            else:
-                product_info['title'] = title_text
-                
+        if ng_words:
+            for ng_word in ng_words:
+                if ng_word in title_text:
+                    product_info['title'] = title_text.replace(ng_word, "")
+                    
         print(f"title _____ _____ _____ {product_info['title']}")
         
         # -------------------------
@@ -237,10 +206,9 @@ def scraping():
             price_value = int(price_text.replace("￥","").replace(",",""))
             product_info['r_price'] = int(round(price_value, 2))
             product_info['price'] = int(round(price_value, 2))
-            
             print(f"price _____ _____ _____ {product_info['price']}")
         except NoSuchElementException:
-            print(f"Cannot get the price information of this product _____ _____ _____ {asin}")
+            print(f"{asin} _____ _____ _____ Cannot get the price information of this product.")
             continue
         
         # -------------------------
@@ -289,10 +257,8 @@ def scraping():
                 elif '】' in origin_el.text:
                     origin = origin_el.text.split('】')[1].strip()
                 else:
-                    ancestor_th_el = origin_el.find_element(
-                        By.XPATH, './ancestor::th[1]')
-                    next_td = ancestor_th_el.find_element(
-                        By.XPATH, "following-sibling::td[1]")
+                    ancestor_th_el = origin_el.find_element(By.XPATH, './ancestor::th[1]')
+                    next_td = ancestor_th_el.find_element(By.XPATH, "following-sibling::td[1]")
                     origin = next_td.text
                 product_info['origin'] = origin
             elif len(origin_th) > 0:
@@ -363,7 +329,7 @@ def scraping():
         # except:
         #     pass
         
-        save_product(CONNECTION, product_info)
+        save_product(product_info)
         
     driver.quit()
     
@@ -371,8 +337,8 @@ def scraping():
     
     
 def get_past_products():
-    # product_api_url = f'https://amazonqoo10main.com/api/v1/get_products'
-    product_api_url = f'http://localhost:8000/api/v1/get_products'
+    product_api_url = f'https://amazonqoo10main.com/api/v1/get_products'
+    # product_api_url = f'http://localhost:8000/api/v1/get_products'
     payload = {
         'user_id': USER_ID
     }
@@ -385,10 +351,18 @@ def get_past_products():
     
     
 def checking_price_stock():
+    if SETTING_VALUE == None:
+        messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
+        return
+    
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get('https://www.amazon.co.jp/-/ja/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.co.jp%2Fref%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=jpflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0')
     time.sleep(3)
+    
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    driver.get(BASE_URL)
     
     id_bar = driver.find_element(By.ID, 'ap_email')
     id_bar.send_keys(SETTING_VALUE['amazon_email'])
@@ -401,37 +375,13 @@ def checking_price_stock():
     
     signin_button = driver.find_element(By.ID, 'signInSubmit')
     signin_button.click()
-    time.sleep(2)
+    time.sleep(60)
     
     exhibited_data = get_past_products()
-    # [
-    #     {
-    #         'id': 12,
-    #         'user_id': 1,
-    #         'asin': 'B0BCWBBC4L',
-    #         'is_prime': 0,
-    #         'title': 'iFace First Class Standard iPhone 14 ケース (イエロー)【アイフェイス アイフォン14 用 iphone14 用 カバー 韓国 耐衝撃 ストラップホール】',
-    #         'url': 'https://www.amazon.co.jp/dp/B0BCWBBC4L',
-    #         'shipping': '無料配送 \n8月 16日 に配送予定 ',
-    #         'quantity': 13,
-    #         'img_url_main': 'https://c.media-amazon.com/images/I/51CTndRkosL._AC_SY679_.jpg',
-    #         'img_url_thumb': '["https:\\/\\/ae01.alicdn.com\\/kf\\/Sb4becd19e02b4f4da815a085bf80d3bek\\/200000mAh-2-USB-iPhone-Android.jpg_80x80.jpg_.webp"]',
-    #         'r_price': 6864,
-    #         'price': 6864,
-    #         'category': '320002268',
-    #         'description': '商品説明\n最大5v1aの高速ワイヤレス充電をサポート...',
-    #         'color': '',
-    #         'size': '',
-    #         'weight': '',
-    #         'material': 'プラスチック',
-    #         'origin': '',
-    #         'exhibit': '1',
-    #         'reason': '',
-    #         'created_at': '2024-09-10T12:30:28.000000Z',
-    #         'updated_at': '2024-09-10T12:30:28.000000Z',
-    #         'deleted_at': None
-    #     }
-    # ]
+    if not exhibited_data:
+        messagebox.showwarning("警告", "出品されている商品がありません。")
+        return
+    
     for exhibited_datum in exhibited_data:
         try:
             driver.get(exhibited_datum['url'])
