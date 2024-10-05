@@ -37,11 +37,9 @@ class AmazonController extends Controller
 
     public function save_products(Request $request)
     {
-        $input_data = $request->all();
-        $product_data = json_decode($input_data['product'], true);
-
+        $product_data = $request->all();
         $old_product = AmazonProduct::where([
-            'user_id' => $input_data['user_id'],
+            'user_id' => $product_data['user_id'],
             'asin' => $product_data['asin']
         ])->first();
 

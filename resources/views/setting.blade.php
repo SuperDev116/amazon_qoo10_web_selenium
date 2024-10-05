@@ -258,7 +258,6 @@
             [
                 { id: '#amazon_email', message: 'アマゾンアクセスキーは必須です。' },
                 { id: '#amazon_password', message: 'アマゾンシークレットキーは必須です。' },
-                { id: '#amazon_partnertag', message: 'アマゾンパートナータグは必須です。' },
                 { id: '#qsm_email', message: 'QSMメールは必須です。' },
                 { id: '#qsm_password', message: 'QSMパスワードは必須です。' },
                 { id: '#qsmAPIKey', message: 'QSM APIキーは必須です。' },

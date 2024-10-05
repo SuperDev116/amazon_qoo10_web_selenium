@@ -106,7 +106,7 @@ class ExhibitQoo
             }
             else
             {
-                console.log('出品失敗 _____ _____ _____ 1', response.text);
+                console.log('出品失敗 _____ _____ _____ 1', response);
             }
         }
         catch (error)
@@ -156,11 +156,14 @@ const exhibit = async ( req, res ) => {
                 }
 
                 let skipItem = false;
-                for (const ngw of ng_words.split('\r\n')) {
-                    if (ngw && product.title.includes(ngw)) {
-                        console.log(`NGWords _____ _____ _____ ${ngw} _____ _____ _____ ${product.title}`);
-                        skipItem = true;
-                        break;
+                if (ng_words)
+                {
+                    for (const ngw of ng_words.split('\r\n')) {
+                        if (ngw && product.title.includes(ngw)) {
+                            console.log(`NGWords _____ _____ _____ ${ngw} _____ _____ _____ ${product.title}`);
+                            skipItem = true;
+                            break;
+                        }
                     }
                 }
                 

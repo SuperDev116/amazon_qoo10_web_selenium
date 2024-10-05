@@ -12,6 +12,8 @@ from datetime import datetime
 
 BASE_URL = 'https://www.amazon.co.jp/-/ja/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.co.jp%2Fref%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=jpflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0'
 PRODUCT_URL = 'https://www.amazon.co.jp/dp/'
+SERVER_URL = 'https://amazonqoo10main.com'
+# SERVER_URL = 'http://localhost:8000'
 
 def get_user_id():
     with open('account.ini', 'r') as file:
@@ -22,8 +24,7 @@ print(f"USER_ID _____ _____ _____ {USER_ID}")
 
 def get_setting_value():
     try:
-        setting_api_url = f'https://amazonqoo10main.com/api/v1/get_setting_value'
-        # setting_api_url = f'http://localhost:8000/api/v1/get_setting_value'
+        setting_api_url = f'{SERVER_URL}/api/v1/get_setting_value'
         payload = {
             'user_id': USER_ID
         }
@@ -36,28 +37,21 @@ def get_setting_value():
         return json.loads(response.text)[0]
     except:
         messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
-        
-SETTING_VALUE = get_setting_value()
-    
-print(f"SETTING_VALUE _____ _____ _____ {SETTING_VALUE}")
 
 
 def save_product(product):
-    setting_api_url = f'https://amazonqoo10main.com/api/v1/save_products'
-    # setting_api_url = f'http://localhost:8000/api/v1/save_products'
-    payload = {
-        'user_id': USER_ID,
-        'product': product,
-    }
+    save_api_url = f'{SERVER_URL}/api/v1/save_products'
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
     }
-    
-    response = requests.post(setting_api_url, headers=headers, data=payload)
-    return json.loads(response.text)[0]
+    response = requests.post(save_api_url, headers=headers, json=product)
+    print(response.text)
+    return
 
 
 def scraping():
+    SETTING_VALUE = get_setting_value()
+    print(f"SETTING_VALUE _____ _____ _____ {SETTING_VALUE}")
     if SETTING_VALUE == None:
         messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
         return
@@ -80,10 +74,13 @@ def scraping():
     time.sleep(60)
     
     exhi_asins = SETTING_VALUE['exhi_asins'].split('\r\n')
-    if SETTING_VALUE['ng_asins']:
+    
+    ng_asins = []
+    if not SETTING_VALUE['ng_asins'] == None:
         ng_asins = SETTING_VALUE['ng_asins'].split('\r\n')
-        
-    if SETTING_VALUE['ng_words']:
+    
+    ng_words = []
+    if not SETTING_VALUE['ng_words'] == None:
         ng_words = SETTING_VALUE['ng_words'].split('\r\n')
     
     for asin in exhi_asins:
@@ -98,21 +95,26 @@ def scraping():
         # -------------------------
         try:
             driver.find_element(By.XPATH, "//b[contains(text(), '何かお探しですか？')]")
-            print(f"{asin} _____ _____ _____ This is a valid asin!")
-        except NoSuchElementException:
             print(f"{asin} _____ _____ _____ This is an invalid asin!")
             continue
+        except NoSuchElementException:
+            print(f"{asin} _____ _____ _____ This is a valid asin!")
         
         # -------------------------
         # prime eligible
         # -------------------------
         try:
-            prime_elmnt = driver.find_element(By.XPATH, "//div[@id='shippingMessageInsideBuyBox_feature_div']")
+            prime_elmnt = driver.find_element(By.XPATH, "//div[@id='priceBadging_feature_div']")
             is_prime = prime_elmnt.find_element(By.CSS_SELECTOR, ".a-icon.a-icon-prime")
             print(f"{asin} _____ _____ _____ This product is prime eligible product.")
         except NoSuchElementException:
-            print(f"{asin} _____ _____ _____ This product is not prime eligible product.")
-            continue
+            try:
+                prime_elmnt = driver.find_element(By.XPATH, "//div[@id='shippingMessageInsideBuyBox_feature_div']")
+                is_prime = prime_elmnt.find_element(By.CSS_SELECTOR, ".a-icon.a-icon-prime")
+                print(f"{asin} _____ _____ _____ This product is prime eligible product.")
+            except NoSuchElementException:
+                print(f"{asin} _____ _____ _____ This product is not prime eligible product.")
+                continue
         
         # -------------------------
         # free shipping information
@@ -337,8 +339,7 @@ def scraping():
     
     
 def get_past_products():
-    product_api_url = f'https://amazonqoo10main.com/api/v1/get_products'
-    # product_api_url = f'http://localhost:8000/api/v1/get_products'
+    product_api_url = f'{SERVER_URL}/api/v1/get_products'
     payload = {
         'user_id': USER_ID
     }
@@ -351,18 +352,21 @@ def get_past_products():
     
     
 def checking_price_stock():
+    SETTING_VALUE = get_setting_value()
+    print(f"SETTING_VALUE _____ _____ _____ {SETTING_VALUE}")
     if SETTING_VALUE == None:
         messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
         return
     
-    driver = webdriver.Chrome()
-    driver.maximize_window()
-    driver.get('https://www.amazon.co.jp/-/ja/ap/signin?openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.co.jp%2Fref%3Dnav_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=jpflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0')
-    time.sleep(3)
+    exhibited_data = get_past_products()
+    if not exhibited_data:
+        messagebox.showwarning("警告", "出品されている商品がありません。")
+        return
     
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get(BASE_URL)
+    time.sleep(3)
     
     id_bar = driver.find_element(By.ID, 'ap_email')
     id_bar.send_keys(SETTING_VALUE['amazon_email'])
@@ -376,11 +380,6 @@ def checking_price_stock():
     signin_button = driver.find_element(By.ID, 'signInSubmit')
     signin_button.click()
     time.sleep(60)
-    
-    exhibited_data = get_past_products()
-    if not exhibited_data:
-        messagebox.showwarning("警告", "出品されている商品がありません。")
-        return
     
     for exhibited_datum in exhibited_data:
         try:
@@ -443,7 +442,7 @@ def checking_price_stock():
         except:
             pass
         
-        messagebox.showinfo("OK", "価格在庫確認完了しました。")
+    messagebox.showinfo("OK", "価格在庫確認完了しました。")
         
         
 if __name__ == "__main__":
