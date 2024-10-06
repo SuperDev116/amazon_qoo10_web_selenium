@@ -16,8 +16,7 @@ class ExhibitQoo
     async main()
     {
         const exhiData = {
-            // SecondSubCat: this.category,
-            SecondSubCat: '320001958',
+            SecondSubCat: this.category,
             ItemTitle: this.product.title.slice(0, 99),
             SellerCode: `SKU-${this.product.asin}`,
             ProductionPlace: this.product.origin,
@@ -147,38 +146,38 @@ const exhibit = async ( req, res ) => {
 
             const exhiInterval = setInterval( () =>
             {
-                let product = amazonProLi[index];
-
-                if (!product.is_prime || !product.quantity)
+                if (index < len)
                 {
-                    index++;
-                    return;
-                }
+                    let product = amazonProLi[index];
+                    if (!product.is_prime || !product.quantity)
+                    {
+                        index++;
+                        return;
+                    }
 
-                let skipItem = false;
-                if (ng_words)
-                {
-                    for (const ngw of ng_words.split('\r\n')) {
-                        if (ngw && product.title.includes(ngw)) {
-                            console.log(`NGWords _____ _____ _____ ${ngw} _____ _____ _____ ${product.title}`);
-                            skipItem = true;
-                            break;
+                    let skipItem = false;
+                    if (ng_words)
+                    {
+                        for (const ngw of ng_words.split('\r\n')) {
+                            if (ngw && product.title.includes(ngw)) {
+                                console.log(`NGWords _____ _____ _____ ${ngw} _____ _____ _____ ${product.title}`);
+                                skipItem = true;
+                                break;
+                            }
                         }
                     }
-                }
-                
-                if (!skipItem)
-                {
-                    if ( index < len ) {
+                    
+                    if (!skipItem)
+                    {
                         const exhibitProduct = new ExhibitQoo( userId, product, apikey, qoo_smallcategory, multiplier );
                         exhibitProduct.main();
-                    } else {
-                        clearInterval( exhiInterval );
                     }
+                    index++;
                 }
-
-                index++;
-
+                else
+                {
+                    clearInterval(exhiInterval);
+                }
             }, 1000 * 5 );
         }
         else
