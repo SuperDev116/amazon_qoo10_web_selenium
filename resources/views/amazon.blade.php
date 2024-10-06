@@ -46,7 +46,9 @@
                 <table class="table table-bordered table-hover datatable">
                     <thead>
                         <tr>
-                            <th style="text-align: center;"></th>
+                            <th style="text-align: center;">
+                                <input type="checkbox" class="all" />
+                            </th>
                             <th style="text-align: center;">ASIN</th>
                             <th style="text-align: center;">商品名</th>
                             <th style="text-align: center;">画像</th>
@@ -82,10 +84,11 @@
             {
                 data: null,
                 name: 'id',
+                orderable: false,
                 render: function(data, type, row) {
                     return (
                         `<div style="text-align: center;">
-                            <input type="checkbox" data-id="${row.id}" />
+                            <input type="checkbox" class="product-checkbox" data-id="${row.id}" />
                         </div>`
                     );
                 }
@@ -207,6 +210,10 @@
         ]
     });
 
+    $('.all').on('change', function() {
+        $('.product-checkbox').prop('checked', this.checked);
+    });
+    
     $('#remove_products').on('click', function() {
         console.log('remove products');
         var checkedCheckboxes = $('input[type=checkbox]:checked');
