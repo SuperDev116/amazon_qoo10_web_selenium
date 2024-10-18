@@ -402,7 +402,9 @@ def checking_price_stock():
                     
                     payload = {
                         'to': email,
-                        "product": exhibited_datum,
+                        "url": exhibited_datum['url'],
+                        "img_url_main": exhibited_datum['exhibited_datum'],
+                        "r_price": exhibited_datum['r_price'],
                         "price": price_value
                     }
                     headers = {
@@ -425,7 +427,9 @@ def checking_price_stock():
                 
                 payload = {
                     'to': email,
-                    "product": exhibited_datum,
+                    "url": exhibited_datum['url'],
+                    "img_url_main": exhibited_datum['exhibited_datum'],
+                    "r_price": exhibited_datum['r_price'],
                     "price": price_value,
                     "quantity": 0
                 }
