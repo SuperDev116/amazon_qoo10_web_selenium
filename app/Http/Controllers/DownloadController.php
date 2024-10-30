@@ -27,8 +27,11 @@ class DownloadController extends Controller
         {
             $exe_filePath = public_path('amazon_tool.exe');
             $zip->addFile($exe_filePath, 'amazon_tool.exe');
+
             $zip->addFile($ini_filepath, 'account.ini');
-            $zip->addFile($ini_filepath, 'amazon.ico');
+
+            $ico_filePath = public_path('amazon.ico');
+            $zip->addFile($ico_filePath, 'amazon.ico');
             $zip->close();
         }
         else

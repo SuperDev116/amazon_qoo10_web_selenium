@@ -141,7 +141,8 @@ def on_quit_clicked(icon):
     
     
 def new():
-    image = Image.open("amazon.ico")
+    img_path = r'amazon.ico'
+    image = Image.open(img_path)
     menu = (
         pystray.MenuItem("ツール画面", draw_main_window),
         pystray.MenuItem("スクレイピング", run_checking_price_stock_in_thread),
@@ -165,7 +166,7 @@ def new():
     
     
 if __name__ == '__main__':
-    specific_date = datetime(2024, 11, 30)
+    specific_date = datetime(2024, 11, 20)
     current_date = datetime.now()
 
     if specific_date < current_date:
