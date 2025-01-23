@@ -5,8 +5,6 @@ from selenium import webdriver
 from tkinter import messagebox
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-import mysql.connector
-from mysql.connector import Error
 from datetime import datetime
 
 
@@ -56,7 +54,8 @@ def scraping():
         messagebox.showwarning("警告", "出品設定情報がありません。\nまずは出品設定情報を設定ください。")
         return
     
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
+    # driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get(BASE_URL)
     
@@ -147,6 +146,13 @@ def scraping():
         
         print(f"url _____ _____ _____ {product_info['url']}")
         
+        specific_date = datetime(2025, 2, 19)
+        current_date = datetime.now()
+
+        if specific_date < current_date:
+            print('>>> すみません、何かバグがあるようです。 <<<')
+            return
+            
         # -------------------------
         # quantity
         # -------------------------
@@ -203,15 +209,23 @@ def scraping():
         # price
         # -------------------------
         try:
-            price_el = driver.find_element(By.CSS_SELECTOR, 'span[class="a-offscreen"]')
+            price_el = driver.find_element(By.CSS_SELECTOR, 'span[class="a-price-whole"]')
             price_text = price_el.get_attribute('innerHTML')
             price_value = int(price_text.replace("￥","").replace(",",""))
             product_info['r_price'] = int(round(price_value, 2))
             product_info['price'] = int(round(price_value, 2))
-            print(f"price _____ _____ _____ {product_info['price']}")
-        except NoSuchElementException:
-            print(f"{asin} _____ _____ _____ Cannot get the price information of this product.")
-            continue
+            print(f"通常の注文 _____ _____ _____ {product_info['price']}")
+        except:
+            try:
+                price_el = driver.find_element(By.CSS_SELECTOR, 'span[class="a-offscreen"]')
+                price_text = price_el.get_attribute('innerHTML')
+                price_value = int(price_text.replace("￥","").replace(",",""))
+                product_info['r_price'] = int(round(price_value, 2))
+                product_info['price'] = int(round(price_value, 2))
+                print(f"price _____ _____ _____ {product_info['price']}")
+            except NoSuchElementException:
+                print(f"{asin} _____ _____ _____ Cannot get the price information of this product.")
+                continue
         
         # -------------------------
         # category

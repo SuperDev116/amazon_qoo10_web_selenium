@@ -147,7 +147,7 @@ def new():
         pystray.MenuItem("ツール画面", draw_main_window),
         pystray.MenuItem("スクレイピング", run_checking_price_stock_in_thread),
         pystray.MenuItem("価格在庫確認", run_checking_price_stock_in_thread),
-        # pystray.MenuItem("終了", on_quit_clicked)
+        pystray.MenuItem("終了", on_quit_clicked)
     )
     
     icon = pystray.Icon("amazon.ico", image, "Amazon→Qoo10出品ツール", menu)
@@ -164,13 +164,7 @@ def new():
         schedule.run_pending()
         time.sleep(1)
     
-    
-if __name__ == '__main__':
-    specific_date = datetime(2024, 11, 20)
-    current_date = datetime.now()
 
-    if specific_date < current_date:
-        print('>>> すみません、何かバグがあるようです。 <<<')
-    else:
-        new()
-        draw_main_window()
+if __name__ == '__main__':
+    new()
+    draw_main_window()
